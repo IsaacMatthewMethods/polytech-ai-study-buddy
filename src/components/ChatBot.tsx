@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Send, Bot, User, Lightbulb, BookOpen, Code, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProgress } from '@/contexts/ProgressContext';
 
 interface Message {
   id: string;
@@ -26,7 +27,9 @@ export const ChatBot = () => {
   ]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [questionCount, setQuestionCount] = useState(0);
   const { toast } = useToast();
+  const { addXP, addStudyTime, unlockAchievement } = useProgress();
 
   // Using your provided API key
   const GEMINI_API_KEY = 'AIzaSyCsxaWHFJGr7C9gTTRD2RYS9zr70-tlyws';
@@ -51,6 +54,21 @@ export const ChatBot = () => {
     setMessages(prev => [...prev, userMessage]);
     setNewMessage('');
     setIsLoading(true);
+
+    // Track user activity
+    const newQuestionCount = questionCount + 1;
+    setQuestionCount(newQuestionCount);
+    
+    // Award XP for asking questions
+    addXP(2);
+    
+    // Add study time (estimated 2 minutes per question)
+    addStudyTime(2);
+    
+    // Check for chat enthusiast achievement
+    if (newQuestionCount >= 50) {
+      unlockAchievement('chat-enthusiast');
+    }
 
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -87,9 +105,12 @@ export const ChatBot = () => {
 
       setMessages(prev => [...prev, botMessage]);
       
+      // Award additional XP for getting a response
+      addXP(3);
+      
       toast({
         title: "Response received!",
-        description: "AI assistant has responded to your question.",
+        description: "AI assistant has responded to your question. +5 XP earned!",
       });
     } catch (error) {
       console.error('Error sending message:', error);
@@ -124,6 +145,10 @@ export const ChatBot = () => {
           <p className="text-lg text-gray-600">
             Get instant help with your Computer Science questions
           </p>
+          <div className="flex justify-center items-center space-x-4 mt-4">
+            <Badge variant="secondary">Questions Asked: {questionCount}</Badge>
+            <Badge variant="outline">Earn XP for every interaction!</Badge>
+          </div>
         </div>
 
         <Card className="h-[600px] flex flex-col bg-white/80 backdrop-blur-lg border-0 shadow-xl">

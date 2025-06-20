@@ -3,46 +3,11 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Target, BookOpen, Clock, TrendingUp, Award, Star, Calendar } from 'lucide-react';
+import { Trophy, Target, BookOpen, Clock, TrendingUp, Award, Star, Calendar, Bot } from 'lucide-react';
+import { useProgress } from '@/contexts/ProgressContext';
 
 export const ProgressTracker = () => {
-  const overallProgress = {
-    level: 3,
-    xp: 2450,
-    xpToNext: 500,
-    totalXp: 2950,
-    coursesCompleted: 8,
-    totalCourses: 12,
-    averageScore: 87,
-    studyStreak: 15,
-    achievements: 12,
-  };
-
-  const courseProgress = [
-    { name: 'Programming Fundamentals', progress: 100, score: 92, status: 'completed' },
-    { name: 'Database Management', progress: 85, score: 88, status: 'in-progress' },
-    { name: 'Web Development', progress: 100, score: 95, status: 'completed' },
-    { name: 'Computer Networks', progress: 60, score: 82, status: 'in-progress' },
-    { name: 'Cybersecurity', progress: 30, score: null, status: 'in-progress' },
-    { name: 'Software Engineering', progress: 0, score: null, status: 'not-started' },
-  ];
-
-  const recentAchievements = [
-    { title: 'Quiz Master', description: 'Completed 10 quizzes with 90%+ score', icon: Trophy, color: 'text-yellow-500' },
-    { title: 'Study Streak', description: '15 days consecutive learning', icon: Calendar, color: 'text-blue-500' },
-    { title: 'Perfect Score', description: 'Achieved 100% on Programming Quiz', icon: Star, color: 'text-purple-500' },
-    { title: 'Fast Learner', description: 'Completed 3 courses this month', icon: TrendingUp, color: 'text-green-500' },
-  ];
-
-  const weeklyActivity = [
-    { day: 'Mon', hours: 2.5, quizzes: 3 },
-    { day: 'Tue', hours: 1.8, quizzes: 2 },
-    { day: 'Wed', hours: 3.2, quizzes: 4 },
-    { day: 'Thu', hours: 2.1, quizzes: 2 },
-    { day: 'Fri', hours: 4.0, quizzes: 5 },
-    { day: 'Sat', hours: 2.8, quizzes: 3 },
-    { day: 'Sun', hours: 1.5, quizzes: 1 },
-  ];
+  const { userProgress, courseProgress, achievements, weeklyActivity } = useProgress();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -70,6 +35,20 @@ export const ProgressTracker = () => {
     }
   };
 
+  const getIconComponent = (iconName: string) => {
+    const icons: { [key: string]: any } = {
+      Trophy,
+      Calendar,
+      Star,
+      TrendingUp,
+      Bot,
+    };
+    return icons[iconName] || Trophy;
+  };
+
+  const totalStudyTime = weeklyActivity.reduce((sum, day) => sum + day.hours, 0);
+  const totalQuizzes = weeklyActivity.reduce((sum, day) => sum + day.quizzes, 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,13 +67,13 @@ export const ProgressTracker = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm">Current Level</p>
-                <p className="text-3xl font-bold">{overallProgress.level}</p>
+                <p className="text-3xl font-bold">{userProgress.level}</p>
               </div>
               <Award className="w-8 h-8 text-blue-200" />
             </div>
             <div className="mt-4">
-              <Progress value={(overallProgress.xp / overallProgress.totalXp) * 100} className="h-2 bg-blue-400" />
-              <p className="text-xs text-blue-100 mt-1">{overallProgress.xp}/{overallProgress.totalXp} XP</p>
+              <Progress value={(userProgress.xp / userProgress.totalXp) * 100} className="h-2 bg-blue-400" />
+              <p className="text-xs text-blue-100 mt-1">{userProgress.xp}/{userProgress.totalXp} XP</p>
             </div>
           </Card>
 
@@ -102,13 +81,13 @@ export const ProgressTracker = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm">Courses Completed</p>
-                <p className="text-3xl font-bold">{overallProgress.coursesCompleted}/{overallProgress.totalCourses}</p>
+                <p className="text-3xl font-bold">{userProgress.coursesCompleted}/{userProgress.totalCourses}</p>
               </div>
               <BookOpen className="w-8 h-8 text-green-200" />
             </div>
             <div className="mt-4">
-              <Progress value={(overallProgress.coursesCompleted / overallProgress.totalCourses) * 100} className="h-2 bg-green-400" />
-              <p className="text-xs text-green-100 mt-1">{Math.round((overallProgress.coursesCompleted / overallProgress.totalCourses) * 100)}% Complete</p>
+              <Progress value={(userProgress.coursesCompleted / userProgress.totalCourses) * 100} className="h-2 bg-green-400" />
+              <p className="text-xs text-green-100 mt-1">{Math.round((userProgress.coursesCompleted / userProgress.totalCourses) * 100)}% Complete</p>
             </div>
           </Card>
 
@@ -116,13 +95,15 @@ export const ProgressTracker = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100 text-sm">Average Score</p>
-                <p className="text-3xl font-bold">{overallProgress.averageScore}%</p>
+                <p className="text-3xl font-bold">{userProgress.averageScore}%</p>
               </div>
               <Target className="w-8 h-8 text-purple-200" />
             </div>
             <div className="mt-4">
-              <Progress value={overallProgress.averageScore} className="h-2 bg-purple-400" />
-              <p className="text-xs text-purple-100 mt-1">Excellent Performance</p>
+              <Progress value={userProgress.averageScore} className="h-2 bg-purple-400" />
+              <p className="text-xs text-purple-100 mt-1">
+                {userProgress.averageScore >= 90 ? 'Excellent!' : userProgress.averageScore >= 70 ? 'Good!' : 'Keep practicing!'}
+              </p>
             </div>
           </Card>
 
@@ -130,12 +111,14 @@ export const ProgressTracker = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-orange-100 text-sm">Study Streak</p>
-                <p className="text-3xl font-bold">{overallProgress.studyStreak}</p>
+                <p className="text-3xl font-bold">{userProgress.studyStreak}</p>
               </div>
               <Clock className="w-8 h-8 text-orange-200" />
             </div>
             <div className="mt-4">
-              <p className="text-xs text-orange-100">Days in a row! 🔥</p>
+              <p className="text-xs text-orange-100">
+                {userProgress.studyStreak > 0 ? 'Days in a row! 🔥' : 'Start your streak today!'}
+              </p>
             </div>
           </Card>
         </div>
@@ -161,8 +144,9 @@ export const ProgressTracker = () => {
                           {getStatusText(course.status)}
                         </Badge>
                         {course.score && (
-                          <span className="text-sm text-gray-600">Score: {course.score}%</span>
+                          <span className="text-sm text-gray-600">Best Score: {course.score}%</span>
                         )}
+                        <span className="text-sm text-gray-600">Quizzes: {course.quizzesCompleted}</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -177,25 +161,38 @@ export const ProgressTracker = () => {
 
           <TabsContent value="achievements" className="mt-6">
             <div className="grid gap-4">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Recent Achievements</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {recentAchievements.map((achievement, index) => {
-                  const Icon = achievement.icon;
-                  return (
-                    <Card key={index} className="p-6 bg-white/80 backdrop-blur-lg border-0 hover:shadow-lg transition-shadow">
-                      <div className="flex items-start space-x-4">
-                        <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center ${achievement.color}`}>
-                          <Icon className="w-6 h-6" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                Achievements ({achievements.length} unlocked)
+              </h3>
+              {achievements.length === 0 ? (
+                <Card className="p-6 bg-white/80 backdrop-blur-lg border-0">
+                  <p className="text-gray-600 text-center">
+                    Start learning to unlock your first achievement! 🎯
+                  </p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {achievements.map((achievement, index) => {
+                    const Icon = getIconComponent(achievement.icon);
+                    return (
+                      <Card key={index} className="p-6 bg-white/80 backdrop-blur-lg border-0 hover:shadow-lg transition-shadow">
+                        <div className="flex items-start space-x-4">
+                          <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center ${achievement.color}`}>
+                            <Icon className="w-6 h-6" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
+                            <p className="text-sm text-gray-600 mb-1">{achievement.description}</p>
+                            <p className="text-xs text-gray-500">
+                              Unlocked: {achievement.unlockedAt.toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 mb-1">{achievement.title}</h4>
-                          <p className="text-sm text-gray-600">{achievement.description}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -209,7 +206,7 @@ export const ProgressTracker = () => {
                       <div className="text-sm font-medium text-gray-600 mb-2">{day.day}</div>
                       <div className="space-y-2">
                         <div className="bg-blue-100 rounded-lg p-3">
-                          <div className="text-2xl font-bold text-blue-600">{day.hours}</div>
+                          <div className="text-2xl font-bold text-blue-600">{day.hours.toFixed(1)}</div>
                           <div className="text-xs text-blue-600">hours</div>
                         </div>
                         <div className="bg-green-100 rounded-lg p-2">
@@ -234,15 +231,15 @@ export const ProgressTracker = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">This Week</span>
-                      <span className="font-medium">17.9 hours</span>
+                      <span className="font-medium">{totalStudyTime.toFixed(1)} hours</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">This Month</span>
-                      <span className="font-medium">72.3 hours</span>
+                      <span className="text-gray-600">XP Earned</span>
+                      <span className="font-medium">{userProgress.xp} XP</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Total</span>
-                      <span className="font-medium">245.7 hours</span>
+                      <span className="text-gray-600">Current Level</span>
+                      <span className="font-medium">Level {userProgress.level}</span>
                     </div>
                   </div>
                 </Card>
@@ -252,33 +249,35 @@ export const ProgressTracker = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Quizzes Taken</span>
-                      <span className="font-medium">47</span>
+                      <span className="font-medium">{totalQuizzes}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Perfect Scores</span>
-                      <span className="font-medium">12</span>
+                      <span className="text-gray-600">Average Score</span>
+                      <span className="font-medium">{userProgress.averageScore}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Improvement Rate</span>
-                      <span className="font-medium text-green-600">+15%</span>
+                      <span className="text-gray-600">Achievements</span>
+                      <span className="font-medium">{userProgress.achievements}</span>
                     </div>
                   </div>
                 </Card>
 
                 <Card className="p-6 bg-white/80 backdrop-blur-lg border-0">
-                  <h4 className="font-semibold text-gray-900 mb-4">Strengths</h4>
+                  <h4 className="font-semibold text-gray-900 mb-4">Progress Summary</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Programming</span>
-                      <span className="font-medium text-green-600">95%</span>
+                      <span className="text-gray-600">Courses Started</span>
+                      <span className="font-medium">
+                        {courseProgress.filter(c => c.status !== 'not-started').length}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Web Development</span>
-                      <span className="font-medium text-green-600">92%</span>
+                      <span className="text-gray-600">Courses Completed</span>
+                      <span className="font-medium text-green-600">{userProgress.coursesCompleted}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Databases</span>
-                      <span className="font-medium text-yellow-600">78%</span>
+                      <span className="text-gray-600">Study Streak</span>
+                      <span className="font-medium text-orange-600">{userProgress.studyStreak} days</span>
                     </div>
                   </div>
                 </Card>
