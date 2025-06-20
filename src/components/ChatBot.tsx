@@ -26,9 +26,10 @@ export const ChatBot = () => {
   ]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const [showApiKeyInput, setShowApiKeyInput] = useState(true);
   const { toast } = useToast();
+
+  // Using your provided API key
+  const GEMINI_API_KEY = 'AIzaSyCsxaWHFJGr7C9gTTRD2RYS9zr70-tlyws';
 
   const quickPrompts = [
     { text: 'Explain Object-Oriented Programming', icon: Code },
@@ -39,14 +40,6 @@ export const ChatBot = () => {
 
   const sendMessage = async () => {
     if (!newMessage.trim()) return;
-    if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Gemini API key to use the chat feature.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -60,7 +53,7 @@ export const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +63,7 @@ export const ChatBot = () => {
             {
               parts: [
                 {
-                  text: `You are an AI study assistant for Computer Science students at Kaduna Polytechnic. Provide helpful, educational responses focusing on CS concepts, programming, and academic support. Question: ${newMessage}`,
+                  text: `You are an AI study assistant for Computer Science students at Kaduna Polytechnic. Provide helpful, educational responses focusing on CS concepts, programming, and academic support. Keep responses clear, engaging, and educational. Question: ${newMessage}`,
                 },
               ],
             },
@@ -83,7 +76,7 @@ export const ChatBot = () => {
       }
 
       const data = await response.json();
-      const botResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I could not process your request at the moment.';
+      const botResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I could not process your request at the moment. Please try again.';
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -93,11 +86,16 @@ export const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
+      
+      toast({
+        title: "Response received!",
+        description: "AI assistant has responded to your question.",
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please check your API key and try again.",
+        description: "Failed to get response from AI assistant. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -127,40 +125,6 @@ export const ChatBot = () => {
             Get instant help with your Computer Science questions
           </p>
         </div>
-
-        {showApiKeyInput && (
-          <Card className="p-6 mb-6 bg-yellow-50 border-yellow-200">
-            <h3 className="text-lg font-semibold text-yellow-800 mb-3">
-              🔑 API Key Required
-            </h3>
-            <p className="text-yellow-700 mb-4">
-              To use the AI chat feature, please enter your Gemini API key below:
-            </p>
-            <div className="flex gap-3">
-              <Input
-                type="password"
-                placeholder="Enter your Gemini API key here..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="flex-1"
-              />
-              <Button
-                onClick={() => {
-                  if (apiKey) {
-                    setShowApiKeyInput(false);
-                    toast({
-                      title: "API Key Set",
-                      description: "You can now use the AI chat feature!",
-                    });
-                  }
-                }}
-                disabled={!apiKey}
-              >
-                Set Key
-              </Button>
-            </div>
-          </Card>
-        )}
 
         <Card className="h-[600px] flex flex-col bg-white/80 backdrop-blur-lg border-0 shadow-xl">
           {/* Chat Header */}
