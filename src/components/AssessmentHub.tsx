@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -142,7 +141,7 @@ export const AssessmentHub = () => {
     setShowResults(false);
   };
 
-  const getD difficultyColor = (difficulty: string) => {
+  const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Basic':
         return 'bg-green-100 text-green-800';
