@@ -24,7 +24,7 @@ export const Hero = () => {
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 animate-scale-in">
             Welcome to{' '}
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 bg-clip-text text-transparent">
-              PolyTech AI
+              Kadpoly Ai
             </span>
           </h1>
           
