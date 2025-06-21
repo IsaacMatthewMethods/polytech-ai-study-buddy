@@ -35,7 +35,7 @@ export const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
             </div>
             <div>
               <h1 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                PolyTech AI
+                Kadpoly AI
               </h1>
               <p className="text-xs text-gray-600">Study Buddy</p>
             </div>

@@ -29,7 +29,7 @@ export const Hero = () => {
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in">
-            Your intelligent study companion for Computer Science at Kaduna Polytechnic. 
+            Your intelligent study companion for Computer Science Students at Kaduna Polytechnic. 
             Master ND & HND courses with AI-powered quizzes, assessments, and personalized learning.
           </p>
 
